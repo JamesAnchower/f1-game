@@ -1,0 +1,25 @@
+{
+  "players": [
+    {
+      "name": "Team Apex",
+      "picks": [
+        ["verstappen", "sainz", "alonso"],
+        ["verstappen", "hamilton", "alonso"]
+      ]
+    },
+    {
+      "name": "Midfield Marvels",
+      "picks": [
+        ["norris", "piastri", "gasly"],
+        ["norris", "piastri", "perez"]
+      ]
+    },
+    {
+      "name": "Safety Car",
+      "picks": [
+        ["hamilton", "perez", "hulkenberg"],
+        ["hamilton", "sainz", "hulkenberg"]
+      ]
+    }
+  ]
+}

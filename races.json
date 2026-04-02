@@ -1,0 +1,58 @@
+{
+  "races": [
+    {
+      "name": "Australian GP",
+      "finishes": [
+        "Russell",
+        "Antonelli",
+        "Leclerc",
+        "Hamilton",
+        "Norris",
+        "Verstappen",
+        "Bearman",
+        "Lindblad",
+        "Bortoleto",
+        "Gasly",
+        "Ocon",
+        "Albon",
+        "Lawson",
+        "Colapinto",
+        "Sainz",
+        "Perez",
+        "Stroll",
+        "Alonso",
+        "Bottas",
+        "Hadjar",
+        "Piastri",
+        "Hulkenberg"
+      ]
+    },
+    {
+      "name": "Chinese GP",
+      "finishes": [
+        "Antonelli",
+        "Russell",
+        "Hamilton",
+        "Leclerc",
+        "Bearman",
+        "Gasly",
+        "Lawson",
+        "Hadjar",
+        "Sainz",
+        "Colapinto",
+        "Hulkenberg",
+        "Lindblad",
+        "Bottas",
+        "Ocon",
+        "Perez",
+        "Verstappen",
+        "Alonso",
+        "Stroll",
+        "Norris",
+        "Piastri",
+        "Bortoleto",
+        "Albon"
+      ]
+    }
+  ]
+}

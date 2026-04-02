@@ -22,37 +22,10 @@
   <p>Pick drivers for each race, then compare finish vs pre-race ranking to score fantasy points. The leaderboard accumulates player totals across the season.</p>
 
   <section>
-    <h2>Driver and Race Data Input</h2>
-    <p>(Paste driver list and race results here; for scraping, fetch from a server endpoint or CORS-enabled API.)</p>
-    <div>
-      <label><strong>Drivers (id,name,predictedRank per line; omit drivers not racing)</strong></label><br>
-      <textarea id="driverInput" rows="8" style="width:100%;">max,Max Verstappen,1
-ham,Lewis Hamilton,2
-sai,Carlos Sainz,3
-leo,Lando Norris,4
-alo,Fernando Alonso,5
-ost,Oscar Piastri,6
-per,Sergio Perez,7
-gas,Pierre Gasly,8
-hul,Nico Hulkenberg,9
-</textarea>
-      <button id="loadDriversBtn">Load Drivers</button>
-    </div>
-    <div style="margin-top:12px;">
-      <label><strong>Race result (name and comma-separated driver IDs in finish order)</strong></label><br>
-      <input type="text" id="raceNameInput" placeholder="Australian GP" style="width:30%;" />
-      <textarea id="raceResultInput" rows="3" style="width:100%;">alo,max,ham,sai,leo,per,ost,gas,tsi,hul</textarea>
-      <button id="addRaceBtn">Add/Update Race</button>
-    </div>
-    <div style="margin-top:12px;">
-      <button id="resetDataBtn">Reset to Default Data</button>
-    </div>
-  </section>
-
-  <section>
     <h2>Driver Standings by Points (tie-break: lower finish sum)</h2>
     <div id="driversRanking"></div>
   </section>
+
 
   <section>
     <h2>Race Finish Summaries</h2>
@@ -72,59 +45,126 @@ hul,Nico Hulkenberg,9
 
   <script>
     let drivers = [
-      { id: 'max', name: 'Max Verstappen', predictedRank: 1 },
-      { id: 'ham', name: 'Lewis Hamilton', predictedRank: 2 },
-      { id: 'sai', name: 'Carlos Sainz', predictedRank: 3 },
-      { id: 'leo', name: 'Lando Norris', predictedRank: 4 },
-      { id: 'alo', name: 'Fernando Alonso', predictedRank: 5 },
-      { id: 'ost', name: 'Oscar Piastri', predictedRank: 6 },
-      { id: 'per', name: 'Sergio Perez', predictedRank: 7 },
-      { id: 'gas', name: 'Pierre Gasly', predictedRank: 8 },
-      { id: 'hul', name: 'Nico Hulkenberg', predictedRank: 9 }
+      { id: 'verstappen', predictedRank: 1 },
+      { id: 'hamilton', predictedRank: 2 },
+      { id: 'sainz', predictedRank: 3 },
+      { id: 'norris', predictedRank: 4 },
+      { id: 'alonso', predictedRank: 5 },
+      { id: 'piastri', predictedRank: 6 },
+      { id: 'perez', predictedRank: 7 },
+      { id: 'gasly', predictedRank: 8 },
+      { id: 'hulkenberg', predictedRank: 9 }
     ];
 
-    let races = [
-      { name: 'Australian GP', finishes: ['alo', 'max', 'ham', 'sai', 'leo', 'per', 'ost', 'gas', 'hul'] },
-      { name: 'Bahrain GP', finishes: ['max', 'ham', 'sai', 'leo', 'alo', 'per', 'ost', 'gas', 'hul'] },
-      { name: 'Saudi Arabia GP', finishes: ['ham', 'max', 'leo', 'sai', 'alo', 'ost', 'per', 'gas', 'hul'] }
-    ];
+    let races = [];
+    let players = [];
 
-    const players = [
-      { name: 'Team Apex', picks: ['max', 'sai', 'alo'], total: 0, racePoints: [] },
-      { name: 'Midfield Marvels', picks: ['leo', 'ost', 'gas'], total: 0, racePoints: [] },
-      { name: 'Safety Car', picks: ['ham', 'per', 'hul'], total: 0, racePoints: [] },
-    ];
+    const maxFinish = 22;
 
-    const maxFinish = 20;
+    const f1PointsByPosition = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-    function getDefaultDrivers() {
-      return [
-        { id: 'max', name: 'Max Verstappen', predictedRank: 1 },
-        { id: 'ham', name: 'Lewis Hamilton', predictedRank: 2 },
-        { id: 'sai', name: 'Carlos Sainz', predictedRank: 3 },
-        { id: 'leo', name: 'Lando Norris', predictedRank: 4 },
-        { id: 'alo', name: 'Fernando Alonso', predictedRank: 5 },
-        { id: 'ost', name: 'Oscar Piastri', predictedRank: 6 },
-        { id: 'per', name: 'Sergio Perez', predictedRank: 7 },
-        { id: 'gas', name: 'Pierre Gasly', predictedRank: 8 },
-        { id: 'hul', name: 'Nico Hulkenberg', predictedRank: 9 }
-      ];
+    function computeDriverStandingsFromRaces() {
+      const stats = {};
+      
+      // Scan all races to find all drivers and compute stats
+      races.forEach((race, raceIndex) => {
+        race.finishes.forEach((driverId, finishPos) => {
+          const finishPosition = finishPos + 1;
+          
+          if (!stats[driverId]) {
+            // New driver: initialize with backfilled finishSum for missed races
+            stats[driverId] = {
+              driverId,
+              points: 0,
+              finishSum: raceIndex * maxFinish,
+              races: raceIndex
+            };
+          }
+          
+          // Get pre-race rank
+          const sortedBeforeThisRace = Object.values(stats)
+            .filter(d => d.races >= raceIndex)
+            .sort((a, b) => {
+              if (b.points !== a.points) return b.points - a.points;
+              if (a.finishSum !== b.finishSum) return a.finishSum - b.finishSum;
+              return a.driverId.localeCompare(b.driverId);
+            });
+          const preRank = sortedBeforeThisRace.findIndex(d => d.driverId === driverId) + 1;
+          
+          // Calculate handicapped finish and points
+          let handicappedFinish = finishPosition - preRank + 4;
+          if (handicappedFinish < 1) handicappedFinish = 1;
+          
+          let handicapPoints = 0;
+          if (handicappedFinish <= 10) {
+            handicapPoints = f1PointsByPosition[handicappedFinish - 1];
+          }
+          
+          stats[driverId].points += handicapPoints;
+          stats[driverId].finishSum += finishPosition;
+          stats[driverId].races += 1;
+        });
+        
+        // Mark drivers not in this race with maxFinish penalty
+        Object.keys(stats).forEach(driverId => {
+          if (!race.finishes.includes(driverId)) {
+            stats[driverId].finishSum += maxFinish;
+          }
+        });
+      });
+      
+      // Sort and assign ranks
+      drivers = Object.values(stats)
+        .sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points;
+          if (a.finishSum !== b.finishSum) return a.finishSum - b.finishSum;
+          return a.driverId.localeCompare(b.driverId);
+        })
+        .map((d, idx) => ({
+          id: d.driverId,
+          predictedRank: idx + 1,
+          points: d.points,
+          finishSum: d.finishSum
+        }));
     }
 
     function getDefaultRaces() {
       return [
-        { name: 'Australian GP', finishes: ['alo', 'max', 'ham', 'sai', 'leo', 'per', 'ost', 'gas', 'hul'] },
-        { name: 'Bahrain GP', finishes: ['max', 'ham', 'sai', 'leo', 'alo', 'per', 'ost', 'gas', 'hul'] },
-        { name: 'Saudi Arabia GP', finishes: ['ham', 'max', 'leo', 'sai', 'alo', 'ost', 'per', 'gas', 'hul'] }
+        { name: 'Australian GP', finishes: ['alonso', 'verstappen', 'hamilton', 'sainz', 'norris', 'perez', 'piastri', 'gasly', 'hulkenberg'] },
+        { name: 'Chinese GP', finishes: ['verstappen', 'hamilton', 'sainz', 'norris', 'alonso', 'perez', 'piastri', 'gasly', 'hulkenberg'] }
+      ];
+    }
+
+    function getDriverDisplayName(driverId) {
+      return driverId.charAt(0).toUpperCase() + driverId.slice(1);
+    }
+
+    function loadData() {
+      return Promise.all([
+        fetch('races.json').then(r => r.json()),
+        fetch('players.json').then(r => r.json())
+      ]).then(([racesData, playersData]) => {
+        races = racesData.races.map(r => ({ ...r, finishes: r.finishes.map(f => f.toLowerCase()) }));
+        computeDriverStandingsFromRaces();
+        players = playersData.players.map(p => ({
+          ...p,
+          total: 0,
+          racePoints: new Array(races.length).fill(0)
+        }));
+      });
+    }
+
+    function getDefaultPlayers() {
+      return [
+        { name: 'Team Apex', picks: [['verstappen', 'sainz', 'alonso'], ['verstappen', 'hamilton', 'alonso']], total: 0, racePoints: [] },
+        { name: 'Midfield Marvels', picks: [['norris', 'piastri', 'gasly'], ['norris', 'piastri', 'perez']], total: 0, racePoints: [] },
+        { name: 'Safety Car', picks: [['hamilton', 'perez', 'hulkenberg'], ['hamilton', 'sainz', 'hulkenberg']], total: 0, racePoints: [] }
       ];
     }
 
     function resetDefaultData() {
       drivers = getDefaultDrivers();
       races = getDefaultRaces();
-      document.getElementById('driverInput').value = drivers.map(d => `${d.id},${d.name},${d.predictedRank}`).join('\n');
-      document.getElementById('raceNameInput').value = '';
-      document.getElementById('raceResultInput').value = '';
       buildDriversRanking();
       buildRaceSelect();
       renderPlayerScores();
@@ -136,14 +176,19 @@ hul,Nico Hulkenberg,9
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       const parsed = [];
       lines.forEach((line, index) => {
-        const [id, name, rank] = line.split(',').map(p => p.trim());
-        if (!id || !name || !rank || isNaN(Number(rank))) {
+        const parts = line.split(',').map(p => p.trim()).filter(Boolean);
+        if (parts.length < 2) {
           return;
         }
-        parsed.push({ id, name, predictedRank: Number(rank) });
+        const id = parts[0];
+        const rank = parts.length >= 2 ? parts[parts.length - 1] : null;
+        if (!id || !rank || isNaN(Number(rank))) {
+          return;
+        }
+        parsed.push({ id, predictedRank: Number(rank) });
       });
       if (parsed.length === 0) {
-        alert('No valid driver data found. Use id,name,predictedRank per line.');
+        alert('No valid driver data found. Use id,predictedRank or id,name,predictedRank per line.');
         return;
       }
       drivers = parsed;
@@ -186,13 +231,11 @@ hul,Nico Hulkenberg,9
 
     function getPreRaceDriverRankings(raceIndex) {
       if (raceIndex <= 0) {
-        return drivers.slice().sort((a, b) => a.predictedRank - b.predictedRank).map(d => ({ driverId: d.id, rank: d.predictedRank }));
+        return drivers.map(d => ({ driverId: d.id, rank: d.predictedRank }));
       }
-      const standings = computeDriverStandings(raceIndex - 1);
-      return standings.map(d => ({ driverId: d.driverId, rank: d.rank }));
+      // For races after the first, rank based on current standings
+      return drivers.map(d => ({ driverId: d.id, rank: d.predictedRank }));
     }
-
-    const f1PointsByPosition = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
     function computeDriverRacePoints(race, raceIndex) {
       const preRaceRanks = Object.fromEntries(getPreRaceDriverRankings(raceIndex).map(p => [p.driverId, p.rank]));
@@ -200,7 +243,8 @@ hul,Nico Hulkenberg,9
       for (let i = 0; i < race.finishes.length; i++) {
         const driverIdOrObj = race.finishes[i];
         const driverId = typeof driverIdOrObj === 'string' ? driverIdOrObj : driverIdOrObj.id;
-        const driver = drivers.find(d => d.id === driverId) || { name: driverId, predictedRank: maxFinish };
+        const driver = drivers.find(d => d.id === driverId) || { predictedRank: maxFinish };
+        const driverName = getDriverDisplayName(driverId);
         const finishPosition = typeof driverIdOrObj === 'string' ? i + 1 : (driverIdOrObj.finishPosition || i + 1);
 
         // Base points for finish according to synthetic F1 style
@@ -224,7 +268,7 @@ hul,Nico Hulkenberg,9
 
         results.push({
           driverId,
-          name: driver.name,
+          name: driverName,
           predictedRank: driver.predictedRank,
           finishPosition,
           preRank,
@@ -241,7 +285,7 @@ hul,Nico Hulkenberg,9
     function computeDriverStandings(uptoRaceIndex) {
       const stats = {};
       drivers.forEach(d => {
-        stats[d.id] = { driverId: d.id, name: d.name, points: 0, finishSum: 0, races: 0 };
+        stats[d.id] = { driverId: d.id, name: getDriverDisplayName(d.id), points: 0, finishSum: 0, races: 0 };
       });
 
       for (let r = 0; r <= uptoRaceIndex && r < races.length; r++) {
@@ -273,9 +317,13 @@ hul,Nico Hulkenberg,9
 
     function buildDriversRanking(raceIndex = 0) {
       const container = document.getElementById('driversRanking');
-      const standings = computeDriverStandings(raceIndex);
-      const rows = standings.map(d =>
-        `<tr><td>${d.rank}</td><td>${d.name}</td><td>${d.points}</td><td>${d.finishSum}</td></tr>`
+      const sortedDrivers = drivers.slice().sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (a.finishSum !== b.finishSum) return a.finishSum - b.finishSum;
+        return a.id.localeCompare(b.id);
+      });
+      const rows = sortedDrivers.map((d, idx) =>
+        `<tr><td>${idx + 1}</td><td>${getDriverDisplayName(d.id)}</td><td>${d.points}</td><td>${d.finishSum}</td></tr>`
       ).join('');
       container.innerHTML = `<table><thead><tr><th>Rank</th><th>Driver</th><th>Points</th><th>Finish Sum</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
@@ -315,14 +363,14 @@ hul,Nico Hulkenberg,9
       `;
 
       computePlayerScoresForRace(raceIndex, results);
-      buildDriversRanking(raceIndex);
       renderPlayerScores();
       renderLeaderboard();
     }
 
     function computePlayerScoresForRace(raceIndex, driverResults) {
       players.forEach(player => {
-        const score = player.picks.reduce((sum, driverId) => {
+        const picks = player.picks[raceIndex] || [];
+        const score = picks.reduce((sum, driverId) => {
           const stat = driverResults.find(r => r.driverId === driverId);
           return sum + (stat ? stat.handicapPoints : 0);
         }, 0);
@@ -337,14 +385,21 @@ hul,Nico Hulkenberg,9
 
     function renderPlayerScores() {
       const container = document.getElementById('playerScores');
-      const headers = ['Player', 'Picks', ...races.map(r => r.name)];
+      const headers = ['Player'];
+      races.forEach((race, idx) => {
+        headers.push(`${race.name} Picks`, `${race.name} Points`);
+      });
       const rows = players.map(player => {
-        const pickNames = player.picks.map(id => drivers.find(d => d.id === id)?.name || id).join(', ');
-        const raceCells = races.map((_, idx) => player.racePoints[idx] != null ? player.racePoints[idx] : '-');
-        return `<tr><td>${player.name}</td><td>${pickNames}</td>${raceCells.map(c=>`<td>${c}</td>`).join('')}</tr>`;
+        const cells = [player.name];
+        races.forEach((_, idx) => {
+          const picks = player.picks[idx] ? player.picks[idx].map(did => getDriverDisplayName(did)).join(', ') : '-';
+          const points = player.racePoints[idx] != null ? player.racePoints[idx] : '-';
+          cells.push(picks, points);
+        });
+        return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
       }).join('');
 
-      container.innerHTML = `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+      container.innerHTML = `<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
     }
 
     function renderLeaderboard() {
@@ -355,10 +410,10 @@ hul,Nico Hulkenberg,9
     }
 
     function init() {
-      loadPageEvents();
-      resetDefaultData();
-      buildDriversRanking();
-      buildRaceSelect();
+      loadData().then(() => {
+        buildDriversRanking();
+        buildRaceSelect();
+      });
     }
 
     init();

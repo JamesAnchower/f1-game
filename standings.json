@@ -1,0 +1,58 @@
+{
+  "standings": [
+    {
+      "name": "Australian GP",
+      "ranks": [
+        "russell",
+        "antonelli",
+        "hadjar",
+        "leclerc",
+        "piastri",
+        "norris",
+        "hamilton",
+        "lawson",
+        "lindblad",
+        "bortoleto",
+        "hulkenberg",
+        "bearman",
+        "ocon",
+        "gasly",
+        "albon",
+        "colapinto",
+        "alonso",
+        "perez",
+        "bottas",
+        "verstappen",
+        "sainz",
+        "stroll"
+      ]
+    },
+    {
+      "name": "Chinese GP",
+      "ranks": [
+        "russell",
+        "antonelli",
+        "leclerc",
+        "hamilton",
+        "norris",
+        "verstappen",
+        "bearman",
+        "lindblad",
+        "bortoleto",
+        "gasly",
+        "ocon",
+        "albon",
+        "lawson",
+        "colapinto",
+        "sainz",
+        "perez",
+        "stroll",
+        "alonso",
+        "bottas",
+        "hadjar",
+        "piastri",
+        "hulkenberg"
+      ]
+    }
+  ]
+}

@@ -1,24 +1,43 @@
 {
   "players": [
     {
-      "name": "Team Apex",
-      "picks": [
-        ["verstappen", "sainz", "alonso"],
-        ["verstappen", "hamilton", "alonso"]
+      "name": "Hans",
+      "pickWindows": [
+        {
+          "startRace": "Australian GP",
+          "picks": ["norris", "verstappen", "ocon"]
+        },
+        {
+          "startRace": "Chinese GP",
+          "picks": ["norris", "verstappen", "ocon"]
+        }
       ]
     },
     {
-      "name": "Midfield Marvels",
-      "picks": [
-        ["norris", "piastri", "gasly"],
-        ["norris", "piastri", "perez"]
+      "name": "Craig",
+      "pickWindows": [
+        {
+          "startRace": "Australian GP",
+          "picks": ["leclerc", "piastri", "gasly"]
+        }
       ]
     },
     {
-      "name": "Safety Car",
-      "picks": [
-        ["hamilton", "perez", "hulkenberg"],
-        ["hamilton", "sainz", "hulkenberg"]
+      "name": "Tess",
+      "pickWindows": [
+        {
+          "startRace": "Australian GP",
+          "picks": ["russell", "sainz", ""]
+        }
+      ]
+    },
+    {
+      "name": "Abby",
+      "pickWindows": [
+        {
+          "startRace": "Australian GP",
+          "picks": ["antonelli", "albon", ""]
+        }
       ]
     }
   ]

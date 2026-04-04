@@ -22,15 +22,8 @@
   <p>Pick drivers for each race, then compare finish vs pre-race ranking to score fantasy points. The leaderboard accumulates player totals across the season.</p>
 
   <section>
-    <h2>Driver Standings by Points (tie-break: lower finish sum)</h2>
-    <div id="driversRanking"></div>
-  </section>
-
-
-  <section>
-    <h2>Race Finish Summaries</h2>
-    <select id="raceSelect"></select>
-    <div id="raceSummary"></div>
+    <h2>Season Leaderboard</h2>
+    <div id="leaderboard"></div>
   </section>
 
   <section>
@@ -39,8 +32,9 @@
   </section>
 
   <section>
-    <h2>Season Leaderboard</h2>
-    <div id="leaderboard"></div>
+    <h2>Race Finish Summaries</h2>
+    <select id="raceSelect"></select>
+    <div id="raceSummary"></div>
   </section>
 
   <script>
@@ -58,6 +52,7 @@
 
     let races = [];
     let players = [];
+    let standings = [];
 
     const maxFinish = 22;
 
@@ -68,7 +63,9 @@
       
       // Scan all races to find all drivers and compute stats
       races.forEach((race, raceIndex) => {
-        race.finishes.forEach((driverId, finishPos) => {
+        race.finishes.forEach((finishObj, finishPos) => {
+          const driverId = finishObj.driver;
+          const status = finishObj.status;
           const finishPosition = finishPos + 1;
           
           if (!stats[driverId]) {
@@ -81,33 +78,19 @@
             };
           }
           
-          // Get pre-race rank
-          const sortedBeforeThisRace = Object.values(stats)
-            .filter(d => d.races >= raceIndex)
-            .sort((a, b) => {
-              if (b.points !== a.points) return b.points - a.points;
-              if (a.finishSum !== b.finishSum) return a.finishSum - b.finishSum;
-              return a.driverId.localeCompare(b.driverId);
-            });
-          const preRank = sortedBeforeThisRace.findIndex(d => d.driverId === driverId) + 1;
-          
-          // Calculate handicapped finish and points
-          let handicappedFinish = finishPosition - preRank + 4;
-          if (handicappedFinish < 1) handicappedFinish = 1;
-          
-          let handicapPoints = 0;
-          if (handicappedFinish <= 10) {
-            handicapPoints = f1PointsByPosition[handicappedFinish - 1];
+          // Direct F1 points by finish position (1st=25 ... 10th=1), no handicap for driver standings
+          let f1Points = 0;
+          if (finishPosition <= 10 && status === "finished") {
+            f1Points = f1PointsByPosition[finishPosition - 1];
           }
-          
-          stats[driverId].points += handicapPoints;
+          stats[driverId].points += f1Points;
           stats[driverId].finishSum += finishPosition;
           stats[driverId].races += 1;
         });
         
         // Mark drivers not in this race with maxFinish penalty
         Object.keys(stats).forEach(driverId => {
-          if (!race.finishes.includes(driverId)) {
+          if (!race.finishes.some(f => f.driver === driverId)) {
             stats[driverId].finishSum += maxFinish;
           }
         });
@@ -142,9 +125,11 @@
     function loadData() {
       return Promise.all([
         fetch('races.json').then(r => r.json()),
-        fetch('players.json').then(r => r.json())
-      ]).then(([racesData, playersData]) => {
-        races = racesData.races.map(r => ({ ...r, finishes: r.finishes.map(f => f.toLowerCase()) }));
+        fetch('players.json').then(r => r.json()),
+        fetch('standings.json').then(r => r.json())
+      ]).then(([racesData, playersData, standingsData]) => {
+        races = racesData.races.map(r => ({ ...r, finishes: r.finishes.map(f => ({ driver: f.driver.toLowerCase(), status: f.status })) }));
+        standings = standingsData.standings.map(s => ({ ...s, ranks: s.ranks.map(r => r.toLowerCase()) }));
         computeDriverStandingsFromRaces();
         players = playersData.players.map(p => ({
           ...p,
@@ -165,7 +150,6 @@
     function resetDefaultData() {
       drivers = getDefaultDrivers();
       races = getDefaultRaces();
-      buildDriversRanking();
       buildRaceSelect();
       renderPlayerScores();
       renderLeaderboard();
@@ -229,54 +213,83 @@
       document.getElementById('resetDataBtn').onclick = resetDefaultData;
     }
 
-    function getPreRaceDriverRankings(raceIndex) {
-      if (raceIndex <= 0) {
-        return drivers.map(d => ({ driverId: d.id, rank: d.predictedRank }));
+    function getRaceIndexByName(name) {
+      return races.findIndex(r => r.name.toLowerCase() === name.toLowerCase());
+    }
+
+    function getPicksForRace(player, raceIndex) {
+      if (player.pickWindows) {
+        let selectedWindow = null;
+        player.pickWindows.forEach(window => {
+          const windowStartIndex = getRaceIndexByName(window.startRace);
+          if (windowStartIndex >= 0 && windowStartIndex <= raceIndex) {
+            selectedWindow = window;
+          }
+        });
+
+        if (selectedWindow && Array.isArray(selectedWindow.picks)) {
+          return selectedWindow.picks.map(d => d.toLowerCase());
+        }
       }
-      // For races after the first, rank based on current standings
-      return drivers.map(d => ({ driverId: d.id, rank: d.predictedRank }));
+
+      if (Array.isArray(player.picks)) {
+        const picks = player.picks[raceIndex] || [];
+        return picks.map(d => d.toLowerCase());
+      }
+
+      return [];
+    }
+
+    function getPreRaceDriverRankings(raceIndex) {
+      if (raceIndex < 0 || raceIndex >= races.length) {
+        return [];
+      }
+      const race = races[raceIndex];
+      const standing = standings.find(s => s.name === race.name);
+      
+      if (!standing) {
+        return [];
+      }
+      
+      // Return drivers with ranks from standings, indexed at 1
+      return standing.ranks.map((driverId, idx) => ({
+        driverId,
+        rank: idx + 1
+      }));
     }
 
     function computeDriverRacePoints(race, raceIndex) {
       const preRaceRanks = Object.fromEntries(getPreRaceDriverRankings(raceIndex).map(p => [p.driverId, p.rank]));
+      const driverSeasonPoints = Object.fromEntries(drivers.map(d => [d.id, d.points]));
       const results = [];
       for (let i = 0; i < race.finishes.length; i++) {
-        const driverIdOrObj = race.finishes[i];
-        const driverId = typeof driverIdOrObj === 'string' ? driverIdOrObj : driverIdOrObj.id;
-        const driver = drivers.find(d => d.id === driverId) || { predictedRank: maxFinish };
+        const finishObj = race.finishes[i];
+        const driverId = finishObj.driver;
+        const status = finishObj.status;
         const driverName = getDriverDisplayName(driverId);
-        const finishPosition = typeof driverIdOrObj === 'string' ? i + 1 : (driverIdOrObj.finishPosition || i + 1);
-
-        // Base points for finish according to synthetic F1 style
-        const basePoints = Math.max(0, 25 - (finishPosition - 1) * 2); // 25,23,21,...
-
-        // Bonus/malus based on predicted ranking vs actual finish
-        const diff = driver.predictedRank - finishPosition;
-        const performanceModifier = diff * 3; // better than expected gets +, worse gets -
-
-        // Composite for driver internal standing
-        const driverPoints = Math.max(0, basePoints + performanceModifier);
+        const finishPosition = i + 1;
 
         const preRank = preRaceRanks[driverId] || drivers.length;
         let handicappedFinish = finishPosition - preRank + 4;
         if (handicappedFinish < 1) handicappedFinish = 1;
+        if (handicappedFinish > 22) handicappedFinish = 22;
 
-        let handicapPoints = 0;
-        if (handicappedFinish <= 10) {
-          handicapPoints = f1PointsByPosition[handicappedFinish - 1];
+        let xp = 0;
+        if (handicappedFinish <= 10 && status === "finished") {
+          xp = f1PointsByPosition[handicappedFinish - 1];
         }
+
+        const seasonTotal = driverSeasonPoints[driverId] || 0;
 
         results.push({
           driverId,
           name: driverName,
-          predictedRank: driver.predictedRank,
-          finishPosition,
           preRank,
+          finishPosition,
           handicappedFinish,
-          handicapPoints,
-          basePoints,
-          performanceModifier,
-          driverPoints
+          xp,
+          seasonTotal,
+          status
         });
       }
       return results;
@@ -323,56 +336,58 @@
         return a.id.localeCompare(b.id);
       });
       const rows = sortedDrivers.map((d, idx) =>
-        `<tr><td>${idx + 1}</td><td>${getDriverDisplayName(d.id)}</td><td>${d.points}</td><td>${d.finishSum}</td></tr>`
+        `<tr><td>${idx + 1}</td><td>${getDriverDisplayName(d.id)}</td></tr>`
       ).join('');
-      container.innerHTML = `<table><thead><tr><th>Rank</th><th>Driver</th><th>Points</th><th>Finish Sum</th></tr></thead><tbody>${rows}</tbody></table>`;
+      container.innerHTML = `<table><thead><tr><th>Rank</th><th>Driver</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
     function buildRaceSelect() {
       const select = document.getElementById('raceSelect');
       select.innerHTML = races.map((r,i)=>`<option value="${i}">${r.name}</option>`).join('');
       select.onchange = () => renderRaceSummary(parseInt(select.value, 10));
-      renderRaceSummary(0);
+      
+      // Compute player scores for all races upfront
+      races.forEach((race, raceIndex) => {
+        const results = computeDriverRacePoints(race, raceIndex);
+        computePlayerScoresForRace(raceIndex, results);
+      });
+      
+      // Initialize to last race
+      const lastRaceIndex = races.length - 1;
+      select.value = lastRaceIndex;
+      renderRaceSummary(lastRaceIndex);
     }
 
     function renderRaceSummary(raceIndex) {
       const race = races[raceIndex];
       const results = computeDriverRacePoints(race, raceIndex);
       const resultRows = results.map(r => {
-        const delta = r.predictedRank - r.finishPosition;
-        const deltaClass = delta >= 0 ? 'good' : 'bad';
         return `<tr>
-          <td>${r.finishPosition}</td>
-          <td>${r.name}</td>
-          <td>${r.predictedRank}</td>
           <td>${r.preRank}</td>
+          <td>${r.name}</td>
+          <td>${r.finishPosition}</td>
           <td>${r.handicappedFinish}</td>
-          <td>${r.handicapPoints}</td>
-          <td>${r.basePoints}</td>
-          <td class="${deltaClass}">${r.performanceModifier > 0 ? '+'+r.performanceModifier : r.performanceModifier}</td>
-          <td>${r.driverPoints}</td>
+          <td>${r.xp}</td>
+          <td>${r.seasonTotal}</td>
+          <td>${r.status}</td>
         </tr>`;
       }).join('');
 
       document.getElementById('raceSummary').innerHTML = `
         <h3>${race.name}</h3>
         <table>
-        <thead><tr><th>Finish</th><th>Driver</th><th>Pred Rank</th><th>Pre-Race Rank</th><th>Handicapped Finish</th><th>Handicap Points</th><th>Base</th><th>Delta</th><th>Total Points</th></tr></thead>
+        <thead><tr><th>Pre-Race Rank</th><th>Driver</th><th>Finish</th><th>Handicapped Finish</th><th>XP</th><th>Season Total</th><th>Status</th></tr></thead>
         <tbody>${resultRows}</tbody>
         </table>
       `;
-
-      computePlayerScoresForRace(raceIndex, results);
-      renderPlayerScores();
-      renderLeaderboard();
     }
 
     function computePlayerScoresForRace(raceIndex, driverResults) {
       players.forEach(player => {
-        const picks = player.picks[raceIndex] || [];
+        const picks = getPicksForRace(player, raceIndex);
         const score = picks.reduce((sum, driverId) => {
           const stat = driverResults.find(r => r.driverId === driverId);
-          return sum + (stat ? stat.handicapPoints : 0);
+          return sum + (stat ? stat.xp : 0);
         }, 0);
         player.racePoints[raceIndex] = score;
       });
@@ -385,17 +400,25 @@
 
     function renderPlayerScores() {
       const container = document.getElementById('playerScores');
-      const headers = ['Player'];
-      races.forEach((race, idx) => {
-        headers.push(`${race.name} Picks`, `${race.name} Points`);
-      });
-      const rows = players.map(player => {
-        const cells = [player.name];
-        races.forEach((_, idx) => {
-          const picks = player.picks[idx] ? player.picks[idx].map(did => getDriverDisplayName(did)).join(', ') : '-';
-          const points = player.racePoints[idx] != null ? player.racePoints[idx] : '-';
-          cells.push(picks, points);
+      const headers = ['Race', ...players.map(player => player.name)];
+
+      const rows = races.map((race, raceIndex) => {
+        const cells = [`<strong>${race.name}</strong>`];
+        const raceResults = computeDriverRacePoints(race, raceIndex);
+
+        players.forEach(player => {
+          const picks = getPicksForRace(player, raceIndex);
+          const driverDetails = picks.map(driverId => {
+            const stat = raceResults.find(r => r.driverId === driverId);
+            const shortName = getDriverDisplayName(driverId).slice(0, 3);
+            const xp = stat ? stat.xp : 0;
+            return `${shortName}: ${xp}`;
+          });
+          const total = player.racePoints[raceIndex] != null ? player.racePoints[raceIndex] : 0;
+          const cellText = `${total} (${driverDetails.join(', ')})`;
+          cells.push(cellText);
         });
+
         return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
       }).join('');
 
@@ -411,8 +434,9 @@
 
     function init() {
       loadData().then(() => {
-        buildDriversRanking();
         buildRaceSelect();
+        renderPlayerScores();
+        renderLeaderboard();
       });
     }
 

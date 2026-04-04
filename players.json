@@ -39,6 +39,15 @@
           "picks": ["antonelli", "albon", ""]
         }
       ]
+    },
+    {
+      "name": "Tom",
+      "pickWindows": [
+        {
+          "startRace": "Australian GP",
+          "picks": ["verstappen", "bearman", "norris"]
+        }
+      ]
     }
   ]
 }

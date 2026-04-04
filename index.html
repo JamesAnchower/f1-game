@@ -15,7 +15,10 @@
     .good { color: #7CFC00; }
     .bad { color: #ff8c00; }
     .badge { display: inline-block; border-radius: 10px; padding: 4px 8px; margin: 2px; background: #222; }
+    #driverChartWrapper { width: min(50vw, 700px); max-width: 100%; }
+    #driverChart { width: 100%; aspect-ratio: 3 / 2; display: block; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1>F1 Roulette</h1>
@@ -33,14 +36,28 @@
   </section>
 
   <section>
+    <h2>The following drivers are very sad that no one has picked them:</h2>
+    <div id="unpickedDrivers"></div>
+  </section>
+
+  <section>
     <h2>Race Finish Summaries</h2>
     <select id="raceSelect"></select>
     <div id="raceSummary"></div>
   </section>
 
   <section>
-    <h2>The following drivers are very sad that no one has picked them:</h2>
-    <div id="unpickedDrivers"></div>
+    <h2>Visualize Driver Data</h2>
+    <select id="driverSelect"></select>
+    <div>
+      <input type="checkbox" id="rankCheck" checked> Rank
+      <input type="checkbox" id="finishCheck"> Finish
+      <input type="checkbox" id="handicappedCheck"> Handicapped Finish
+      <input type="checkbox" id="bucksCheck"> Bucks
+    </div>
+    <div id="driverChartWrapper">
+      <canvas id="driverChart"></canvas>
+    </div>
   </section>
 
   <script>
@@ -59,6 +76,7 @@
     let races = [];
     let players = [];
     let standings = [];
+    let driverChart = null;
 
     const maxFinish = 22;
 
@@ -280,9 +298,9 @@
         if (handicappedFinish < 1) handicappedFinish = 1;
         if (handicappedFinish > 22) handicappedFinish = 22;
 
-        let xp = 0;
+        let bucks = 0;
         if (handicappedFinish <= 10 && status === "finished") {
-          xp = f1PointsByPosition[handicappedFinish - 1];
+          bucks = f1PointsByPosition[handicappedFinish - 1];
         }
 
         const seasonTotal = driverSeasonPoints[driverId] || 0;
@@ -293,7 +311,7 @@
           preRank,
           finishPosition,
           handicappedFinish,
-          xp,
+          bucks,
           seasonTotal,
           status
         });
@@ -364,6 +382,109 @@
       renderRaceSummary(lastRaceIndex);
     }
 
+    function getDriverPerformanceStats(driverId) {
+      return races.map((race, raceIndex) => {
+        const result = computeDriverRacePoints(race, raceIndex).find(r => r.driverId === driverId);
+        return {
+          raceName: race.name,
+          rank: result ? result.preRank : null,
+          finish: result ? result.finishPosition : null,
+          handicappedFinish: result ? result.handicappedFinish : null,
+          bucks: result ? result.bucks : 0
+        };
+      });
+    }
+
+    function getSelectedMetrics() {
+      return [
+        { key: 'rank', label: 'Rank', checked: document.getElementById('rankCheck').checked, color: '#FF6384' },
+        { key: 'finish', label: 'Finish', checked: document.getElementById('finishCheck').checked, color: '#36A2EB' },
+        { key: 'handicappedFinish', label: 'Handicapped Finish', checked: document.getElementById('handicappedCheck').checked, color: '#FFCE56' },
+        { key: 'bucks', label: 'Bucks', checked: document.getElementById('bucksCheck').checked, color: '#4BC0C0' }
+      ].filter(metric => metric.checked);
+    }
+
+    function updateDriverChart() {
+      const driverId = document.getElementById('driverSelect').value;
+      if (!driverId || races.length === 0) {
+        return;
+      }
+
+      const stats = getDriverPerformanceStats(driverId);
+      const labels = stats.map(s => s.raceName);
+      const metrics = getSelectedMetrics();
+
+      if (metrics.length === 0) {
+        if (driverChart) {
+          driverChart.data.labels = labels;
+          driverChart.data.datasets = [];
+          driverChart.update();
+        }
+        return;
+      }
+
+      const datasets = metrics.map(metric => ({
+        label: metric.label,
+        data: stats.map(s => s[metric.key]),
+        borderColor: metric.color,
+        backgroundColor: metric.color,
+        fill: false,
+        tension: 0.25,
+        spanGaps: true,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }));
+
+      const chartData = {
+        labels,
+        datasets
+      };
+
+      const chartConfig = {
+        type: 'line',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#f0f0f0' } }
+          },
+          scales: {
+            x: { ticks: { color: '#f0f0f0' }, grid: { color: '#333' } },
+            y: { ticks: { color: '#f0f0f0' }, grid: { color: '#333' }, beginAtZero: true }
+          }
+        }
+      };
+
+      const ctx = document.getElementById('driverChart').getContext('2d');
+      if (driverChart) {
+        driverChart.data = chartData;
+        driverChart.options = chartConfig.options;
+        driverChart.update();
+      } else {
+        driverChart = new Chart(ctx, chartConfig);
+      }
+    }
+
+    function buildDriverChartControls() {
+      const select = document.getElementById('driverSelect');
+      const sortedDrivers = drivers
+        .slice()
+        .sort((a, b) => getDriverDisplayName(a.id).localeCompare(getDriverDisplayName(b.id)));
+      select.innerHTML = sortedDrivers.map(d => `<option value="${d.id}">${getDriverDisplayName(d.id)}</option>`).join('');
+      select.onchange = updateDriverChart;
+
+      ['rankCheck', 'finishCheck', 'handicappedCheck', 'bucksCheck'].forEach(id => {
+        const checkbox = document.getElementById(id);
+        checkbox.onchange = updateDriverChart;
+      });
+
+      if (drivers.length > 0) {
+        select.value = drivers[0].id;
+      }
+      updateDriverChart();
+    }
+
     function renderRaceSummary(raceIndex) {
       const race = races[raceIndex];
       const results = computeDriverRacePoints(race, raceIndex);
@@ -373,7 +494,7 @@
           <td>${r.name}</td>
           <td>${r.finishPosition}</td>
           <td>${r.handicappedFinish}</td>
-          <td>${r.xp}</td>
+          <td>${r.bucks}</td>
           <td>${r.seasonTotal}</td>
           <td>${r.status}</td>
         </tr>`;
@@ -393,7 +514,7 @@
         const picks = getPicksForRace(player, raceIndex);
         const score = picks.reduce((sum, driverId) => {
           const stat = driverResults.find(r => r.driverId === driverId);
-          return sum + (stat ? stat.xp : 0);
+          return sum + (stat ? stat.bucks : 0);
         }, 0);
         player.racePoints[raceIndex] = score;
       });
@@ -417,8 +538,8 @@
           const driverDetails = picks.map(driverId => {
             const stat = raceResults.find(r => r.driverId === driverId);
             const shortName = getDriverDisplayName(driverId).slice(0, 3);
-            const xp = stat ? stat.xp : 0;
-            return `${shortName}: ${xp}`;
+            const bucks = stat ? stat.bucks : 0;
+            return `${shortName}: ${bucks}`;
           });
           const total = player.racePoints[raceIndex] != null ? player.racePoints[raceIndex] : 0;
           const cellText = `${total} (${driverDetails.join(', ')})`;
@@ -474,6 +595,7 @@
         renderPlayerScores();
         renderLeaderboard();
         renderUnpickedDrivers();
+        buildDriverChartControls();
       });
     }
 

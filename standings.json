@@ -53,6 +53,33 @@
         "piastri",
         "hulkenberg"
       ]
+    },
+    {
+      "name": "Japanese GP",
+      "ranks": [
+        "antonelli",
+        "russell",
+        "leclerc",
+        "hamilton",
+        "norris",
+        "piastri",
+        "bearman",
+        "gasly",
+        "verstappen",
+        "lawson",
+        "lindblad",
+        "hadjar",
+        "bortoleto",
+        "sainz",
+        "ocon",
+        "colapinto",
+        "hulkenberg",
+        "albon",
+        "bottas",
+        "perez",
+        "alonso",
+        "stroll"
+      ]
     }
   ]
 }

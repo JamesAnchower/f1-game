@@ -38,6 +38,11 @@
     <div id="raceSummary"></div>
   </section>
 
+  <section>
+    <h2>The following drivers are very sad that no one has picked them:</h2>
+    <div id="unpickedDrivers"></div>
+  </section>
+
   <script>
     let drivers = [
       { id: 'verstappen', predictedRank: 1 },
@@ -433,11 +438,42 @@
       container.innerHTML = `<table><thead><tr><th>Pos</th><th>Player</th><th>Total Bucks</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
+    function renderUnpickedDrivers() {
+      const container = document.getElementById('unpickedDrivers');
+      const allDriverIds = new Set(drivers.map(d => d.id));
+      const pickedDriverIds = new Set();
+
+      players.forEach(player => {
+        if (player.pickWindows) {
+          player.pickWindows.forEach(window => {
+            if (Array.isArray(window.picks)) {
+              window.picks.forEach(pick => {
+                if (pick) pickedDriverIds.add(pick.toLowerCase());
+              });
+            }
+          });
+        } else if (Array.isArray(player.picks)) {
+          player.picks.flat().forEach(pick => {
+            if (pick) pickedDriverIds.add(pick.toLowerCase());
+          });
+        }
+      });
+
+      const unpicked = Array.from(allDriverIds).filter(id => !pickedDriverIds.has(id));
+      if (unpicked.length === 0) {
+        container.innerHTML = '<p>All drivers have been picked by at least one player.</p>';
+        return;
+      }
+
+      container.innerHTML = `<p>${unpicked.map(id => getDriverDisplayName(id)).join(', ')}</p>`;
+    }
+
     function init() {
       loadData().then(() => {
         buildRaceSelect();
         renderPlayerScores();
         renderLeaderboard();
+        renderUnpickedDrivers();
       });
     }
 

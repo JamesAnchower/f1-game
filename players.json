@@ -4,11 +4,7 @@
       "name": "Hans",
       "pickWindows": [
         {
-          "startRace": "Australian GP",
-          "picks": ["norris", "verstappen", "ocon"]
-        },
-        {
-          "startRace": "Chinese GP",
+          "startRace": "Australia",
           "picks": ["norris", "verstappen", "ocon"]
         }
       ]
@@ -17,7 +13,7 @@
       "name": "Craig",
       "pickWindows": [
         {
-          "startRace": "Australian GP",
+          "startRace": "Australia",
           "picks": ["leclerc", "piastri", "gasly"]
         }
       ]
@@ -26,7 +22,7 @@
       "name": "Tess",
       "pickWindows": [
         {
-          "startRace": "Australian GP",
+          "startRace": "Australia",
           "picks": ["russell", "sainz", ""]
         }
       ]
@@ -35,7 +31,7 @@
       "name": "Abby",
       "pickWindows": [
         {
-          "startRace": "Australian GP",
+          "startRace": "Australia",
           "picks": ["antonelli", "albon", ""]
         }
       ]
@@ -44,7 +40,7 @@
       "name": "Tom",
       "pickWindows": [
         {
-          "startRace": "Australian GP",
+          "startRace": "Australia",
           "picks": ["verstappen", "bearman", "norris"]
         }
       ]

@@ -1,7 +1,7 @@
 {
   "standings": [
     {
-      "name": "Australian GP",
+      "name": "Australia",
       "ranks": [
         "russell",
         "antonelli",
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "name": "Chinese GP",
+      "name": "China",
       "ranks": [
         "russell",
         "antonelli",
@@ -55,7 +55,34 @@
       ]
     },
     {
-      "name": "Japanese GP",
+      "name": "Japan",
+      "ranks": [
+        "antonelli",
+        "russell",
+        "leclerc",
+        "hamilton",
+        "norris",
+        "piastri",
+        "bearman",
+        "gasly",
+        "verstappen",
+        "lawson",
+        "lindblad",
+        "hadjar",
+        "bortoleto",
+        "sainz",
+        "ocon",
+        "colapinto",
+        "hulkenberg",
+        "albon",
+        "bottas",
+        "perez",
+        "alonso",
+        "stroll"
+      ]
+    },
+    {
+      "name": "Miami",
       "ranks": [
         "antonelli",
         "russell",

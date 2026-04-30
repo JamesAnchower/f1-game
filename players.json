@@ -23,7 +23,7 @@
       "pickWindows": [
         {
           "startRace": "Australia",
-          "picks": ["russell", "sainz", ""]
+          "picks": ["russell", "sainz", "lawson"]
         }
       ]
     },
@@ -32,7 +32,7 @@
       "pickWindows": [
         {
           "startRace": "Australia",
-          "picks": ["antonelli", "albon", ""]
+          "picks": ["antonelli", "albon", "hadjar"]
         }
       ]
     },

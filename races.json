@@ -278,6 +278,99 @@
           "status": "dnf"
         }
       ]
+    },
+    {
+      "name": "Miami",
+      "finishes": [
+        {
+          "driver": "antonelli",
+          "status": "finished"
+        },
+        {
+          "driver": "norris",
+          "status": "finished"
+        },
+        {
+          "driver": "piastri",
+          "status": "finished"
+        },
+        {
+          "driver": "russell",
+          "status": "finished"
+        },
+        {
+          "driver": "verstappen",
+          "status": "finished"
+        },
+        {
+          "driver": "hamilton",
+          "status": "finished"
+        },
+        {
+          "driver": "colapinto",
+          "status": "finished"
+        },
+        {
+          "driver": "leclerc",
+          "status": "finished"
+        },
+        {
+          "driver": "sainz",
+          "status": "finished"
+        },
+        {
+          "driver": "albon",
+          "status": "finished"
+        },
+        {
+          "driver": "bearman",
+          "status": "finished"
+        },
+        {
+          "driver": "bortoleto",
+          "status": "finished"
+        },
+        {
+          "driver": "ocon",
+          "status": "finished"
+        },
+        {
+          "driver": "lindblad",
+          "status": "finished"
+        },
+        {
+          "driver": "alonso",
+          "status": "finished"
+        },
+        {
+          "driver": "perez",
+          "status": "finished"
+        },
+        {
+          "driver": "stroll",
+          "status": "finished"
+        },
+        {
+          "driver": "bottas",
+          "status": "finished"
+        },
+        {
+          "driver": "hulkenberg",
+          "status": "dnf"
+        },
+        {
+          "driver": "lawson",
+          "status": "dnf"
+        },
+        {
+          "driver": "gasly",
+          "status": "dnf"
+        },
+        {
+          "driver": "hadjar",
+          "status": "dnf"
+        }
+      ]
     }
   ]
 }

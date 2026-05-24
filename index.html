@@ -85,6 +85,7 @@
     let races = [];
     let players = [];
     let standings = [];
+    let startingGrid = null;
     let driverChart = null;
 
     const maxFinish = 22;
@@ -190,8 +191,9 @@
       return Promise.all([
         fetch('races.json').then(r => r.json()),
         fetch('players.json').then(r => r.json()),
-        fetch('standings.json').then(r => r.json())
-      ]).then(([racesData, playersData, standingsData]) => {
+        fetch('standings.json').then(r => r.json()),
+        fetch('starting_grid.json').then(r => r.json()).catch(() => null)
+      ]).then(([racesData, playersData, standingsData, startingGridData]) => {
         races = racesData.races.map(r => ({
           ...r,
           finishes: r.finishes.map(f => ({
@@ -203,6 +205,14 @@
           ...s,
           ranks: s.ranks.map(r => normalizeDriverId(r))
         }));
+        if (startingGridData && startingGridData.grid) {
+          startingGrid = {
+            name: startingGridData.name,
+            grid: startingGridData.grid.map(g => ({ driver: normalizeDriverId(g.driver), position: g.position }))
+          };
+        } else {
+          startingGrid = null;
+        }
         computeDriverStandingsFromRaces();
         players = playersData.players.map(p => ({
           ...p,
@@ -679,6 +689,14 @@
       const selectedDrivers = new Set();
       const driverOwners = {};
 
+      const normalizeRaceName = (value) => {
+        if (!value || typeof value !== 'string') return '';
+        return value.toLowerCase().replace(/grand prix/g, '').replace(/\bgp\b/g, '').replace(/[^a-z0-9]+/g, '');
+      };
+
+      const showStart = startingGrid && normalizeRaceName(startingGrid.name) === normalizeRaceName(guideRaceName);
+      const startMap = showStart ? Object.fromEntries(startingGrid.grid.map(g => [g.driver, g.position])) : {};
+
       players.forEach(player => {
         getPicksForRace(player, effectiveRaceIndex).forEach(driverId => {
           if (driverId) {
@@ -701,6 +719,7 @@
         .map(driverId => `
           <tr>
             <td>${getDriverDisplayName(driverId)}</td>
+            ${showStart ? `<td>${startMap[driverId] ? 'P' + startMap[driverId] : '-'}</td>` : ''}
             <td>${rankMap[driverId] ? `P${rankMap[driverId]}` : '-'}</td>
             <td>${driverOwners[driverId] ? driverOwners[driverId].join(', ') : '-'}</td>
           </tr>`)
@@ -713,7 +732,7 @@
 
       container.innerHTML = `
         <table class="compact-table">
-          <thead><tr><th>Driver</th><th>Target Finish</th><th>Owner</th></tr></thead>
+          <thead><tr><th>Driver</th>${showStart ? '<th>Start Position</th>' : ''}<th>Target Finish</th><th>Owner</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
     }

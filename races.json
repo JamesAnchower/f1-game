@@ -477,6 +477,10 @@
           "status": "finished"
         },
         {
+          "driver": "gasly",
+          "status": "finished"
+        },
+        {
           "driver": "hadjar",
           "status": "finished"
         },
@@ -490,10 +494,6 @@
         },
         {
           "driver": "lindblad",
-          "status": "finished"
-        },
-        {
-          "driver": "gasly",
           "status": "finished"
         },
         {

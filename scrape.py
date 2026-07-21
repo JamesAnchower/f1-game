@@ -643,3 +643,20 @@ def update_races_json():
 
 if __name__ == "__main__":
     update_races_json()
+
+    # Prompt to commit and push changes
+    try:
+        resp = input("\nCommit and push changes to git remote? [y/N]: ").strip().lower()
+        if resp == 'y':
+            import subprocess
+            subprocess.run(["git", "add", "races.json", "standings.json", "starting_grid.json"], check=False)
+            msg = input("Enter commit message (or leave blank for 'Update race data'): ").strip()
+            if not msg:
+                msg = "Update race data"
+            subprocess.run(["git", "commit", "-m", msg], check=False)
+            subprocess.run(["git", "push"], check=False)
+            print("Changes committed and pushed.")
+        else:
+            print("Skipped git commit/push.")
+    except Exception as e:
+        print(f"Git commit/push step failed: {e}")

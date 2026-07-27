@@ -929,6 +929,99 @@
           "status": "dnf"
         }
       ]
+    },
+    {
+      "name": "Hungary",
+      "finishes": [
+        {
+          "driver": "norris",
+          "status": "finished"
+        },
+        {
+          "driver": "verstappen",
+          "status": "finished"
+        },
+        {
+          "driver": "antonelli",
+          "status": "finished"
+        },
+        {
+          "driver": "leclerc",
+          "status": "finished"
+        },
+        {
+          "driver": "hamilton",
+          "status": "finished"
+        },
+        {
+          "driver": "hadjar",
+          "status": "finished"
+        },
+        {
+          "driver": "russell",
+          "status": "finished"
+        },
+        {
+          "driver": "lawson",
+          "status": "finished"
+        },
+        {
+          "driver": "hulkenberg",
+          "status": "finished"
+        },
+        {
+          "driver": "lindblad",
+          "status": "finished"
+        },
+        {
+          "driver": "bortoleto",
+          "status": "finished"
+        },
+        {
+          "driver": "gasly",
+          "status": "finished"
+        },
+        {
+          "driver": "stroll",
+          "status": "finished"
+        },
+        {
+          "driver": "alonso",
+          "status": "finished"
+        },
+        {
+          "driver": "colapinto",
+          "status": "finished"
+        },
+        {
+          "driver": "ocon",
+          "status": "finished"
+        },
+        {
+          "driver": "albon",
+          "status": "finished"
+        },
+        {
+          "driver": "sainz",
+          "status": "finished"
+        },
+        {
+          "driver": "bearman",
+          "status": "finished"
+        },
+        {
+          "driver": "piastri",
+          "status": "dnf"
+        },
+        {
+          "driver": "perez",
+          "status": "dnf"
+        },
+        {
+          "driver": "bottas",
+          "status": "dnf"
+        }
+      ]
     }
   ]
 }

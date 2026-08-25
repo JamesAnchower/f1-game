@@ -323,6 +323,34 @@
         "bottas",
         "perez"
       ]
+    },
+    {
+      "name": "Italy",
+      "ranks": [
+        "antonelli",
+        "russell",
+        "hamilton",
+        "norris",
+        "leclerc",
+        "verstappen",
+        "piastri",
+        "hadjar",
+        "lawson",
+        "gasly",
+        "lindblad",
+        "colapinto",
+        "bearman",
+        "bortoleto",
+        "hulkenberg",
+        "sainz",
+        "albon",
+        "ocon",
+        "alonso",
+        "tsunoda",
+        "stroll",
+        "bottas",
+        "perez"
+      ]
     }
   ]
 }

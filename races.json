@@ -1067,7 +1067,7 @@
           "status": "finished"
         },
         {
-          "driver": "tsu",
+          "driver": "hadjar",
           "status": "finished"
         },
         {
@@ -1112,6 +1112,99 @@
         },
         {
           "driver": "verstappen",
+          "status": "dnf"
+        }
+      ]
+    },
+    {
+      "name": "Italy",
+      "finishes": [
+        {
+          "driver": "antonelli",
+          "status": "finished"
+        },
+        {
+          "driver": "russell",
+          "status": "finished"
+        },
+        {
+          "driver": "verstappen",
+          "status": "finished"
+        },
+        {
+          "driver": "norris",
+          "status": "finished"
+        },
+        {
+          "driver": "piastri",
+          "status": "finished"
+        },
+        {
+          "driver": "hamilton",
+          "status": "finished"
+        },
+        {
+          "driver": "gasly",
+          "status": "finished"
+        },
+        {
+          "driver": "lindblad",
+          "status": "finished"
+        },
+        {
+          "driver": "colapinto",
+          "status": "finished"
+        },
+        {
+          "driver": "hadjar",
+          "status": "finished"
+        },
+        {
+          "driver": "bortoleto",
+          "status": "finished"
+        },
+        {
+          "driver": "hulkenberg",
+          "status": "finished"
+        },
+        {
+          "driver": "sainz",
+          "status": "finished"
+        },
+        {
+          "driver": "lawson",
+          "status": "finished"
+        },
+        {
+          "driver": "bearman",
+          "status": "finished"
+        },
+        {
+          "driver": "ocon",
+          "status": "finished"
+        },
+        {
+          "driver": "albon",
+          "status": "finished"
+        },
+        {
+          "driver": "perez",
+          "status": "finished"
+        },
+        {
+          "driver": "bottas",
+          "status": "finished"
+        },
+        {
+          "driver": "stroll",
+          "status": "dnf"
+        },
+        {
+          "driver": "alonso",
+          "status": "dnf"
+        },
+        {
+          "driver": "leclerc",
           "status": "dnf"
         }
       ]

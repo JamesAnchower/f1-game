@@ -33,6 +33,10 @@
         {
           "startRace": "Australia",
           "picks": ["antonelli", "albon", "hadjar"]
+        },
+        {
+          "startRace": "Netherlands",
+          "picks": ["antonelli", "albon", "tsunoda"]
         }
       ]
     },

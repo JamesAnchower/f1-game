@@ -1396,6 +1396,99 @@
       ]
     },
     {
+      "name": "Singapore",
+      "finishes": [
+        {
+          "driver": "verstappen",
+          "status": "finished"
+        },
+        {
+          "driver": "leclerc",
+          "status": "finished"
+        },
+        {
+          "driver": "antonelli",
+          "status": "finished"
+        },
+        {
+          "driver": "norris",
+          "status": "finished"
+        },
+        {
+          "driver": "piastri",
+          "status": "finished"
+        },
+        {
+          "driver": "hamilton",
+          "status": "finished"
+        },
+        {
+          "driver": "lawson",
+          "status": "finished"
+        },
+        {
+          "driver": "hulkenberg",
+          "status": "finished"
+        },
+        {
+          "driver": "russell",
+          "status": "finished"
+        },
+        {
+          "driver": "hadjar",
+          "status": "finished"
+        },
+        {
+          "driver": "gasly",
+          "status": "finished"
+        },
+        {
+          "driver": "bearman",
+          "status": "finished"
+        },
+        {
+          "driver": "ocon",
+          "status": "finished"
+        },
+        {
+          "driver": "sainz",
+          "status": "finished"
+        },
+        {
+          "driver": "lindblad",
+          "status": "finished"
+        },
+        {
+          "driver": "alonso",
+          "status": "finished"
+        },
+        {
+          "driver": "perez",
+          "status": "finished"
+        },
+        {
+          "driver": "albon",
+          "status": "dnf"
+        },
+        {
+          "driver": "bottas",
+          "status": "finished"
+        },
+        {
+          "driver": "stroll",
+          "status": "dnf"
+        },
+        {
+          "driver": "colapinto",
+          "status": "dnf"
+        },
+        {
+          "driver": "bortoleto",
+          "status": "dnf"
+        }
+      ]
+    },
+    {
       "name": "Bahrain",
       "finishes": [
         {

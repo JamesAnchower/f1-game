@@ -409,6 +409,34 @@
       ]
     },
     {
+      "name": "Singapore",
+      "ranks": [
+        "antonelli",
+        "russell",
+        "hamilton",
+        "leclerc",
+        "verstappen",
+        "norris",
+        "piastri",
+        "hadjar",
+        "lawson",
+        "gasly",
+        "lindblad",
+        "colapinto",
+        "bearman",
+        "bortoleto",
+        "hulkenberg",
+        "ocon",
+        "alonso",
+        "sainz",
+        "albon",
+        "tsunoda",
+        "stroll",
+        "bottas",
+        "perez"
+      ]
+    },
+    {
       "name": "Bahrain",
       "ranks": [
         "antonelli",
@@ -437,13 +465,13 @@
       ]
     },
     {
-      "name": "Singapore",
+      "name": "United States",
       "ranks": [
         "antonelli",
         "russell",
         "hamilton",
-        "leclerc",
         "verstappen",
+        "leclerc",
         "norris",
         "piastri",
         "hadjar",
@@ -452,8 +480,8 @@
         "lindblad",
         "colapinto",
         "bearman",
-        "bortoleto",
         "hulkenberg",
+        "bortoleto",
         "ocon",
         "alonso",
         "sainz",

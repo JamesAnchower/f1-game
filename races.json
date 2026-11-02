@@ -1582,6 +1582,99 @@
       ]
     },
     {
+      "name": "Mexico",
+      "finishes": [
+        {
+          "driver": "verstappen",
+          "status": "finished"
+        },
+        {
+          "driver": "hamilton",
+          "status": "finished"
+        },
+        {
+          "driver": "antonelli",
+          "status": "finished"
+        },
+        {
+          "driver": "leclerc",
+          "status": "finished"
+        },
+        {
+          "driver": "norris",
+          "status": "finished"
+        },
+        {
+          "driver": "russell",
+          "status": "finished"
+        },
+        {
+          "driver": "lawson",
+          "status": "finished"
+        },
+        {
+          "driver": "bortoleto",
+          "status": "finished"
+        },
+        {
+          "driver": "hadjar",
+          "status": "finished"
+        },
+        {
+          "driver": "hir",
+          "status": "finished"
+        },
+        {
+          "driver": "albon",
+          "status": "finished"
+        },
+        {
+          "driver": "sainz",
+          "status": "finished"
+        },
+        {
+          "driver": "piastri",
+          "status": "finished"
+        },
+        {
+          "driver": "hulkenberg",
+          "status": "finished"
+        },
+        {
+          "driver": "colapinto",
+          "status": "finished"
+        },
+        {
+          "driver": "perez",
+          "status": "finished"
+        },
+        {
+          "driver": "gasly",
+          "status": "finished"
+        },
+        {
+          "driver": "lindblad",
+          "status": "dnf"
+        },
+        {
+          "driver": "bearman",
+          "status": "dnf"
+        },
+        {
+          "driver": "bottas",
+          "status": "dnf"
+        },
+        {
+          "driver": "stroll",
+          "status": "dnf"
+        },
+        {
+          "driver": "alonso",
+          "status": "dnf"
+        }
+      ]
+    },
+    {
       "name": "Bahrain",
       "finishes": [
         {

@@ -465,6 +465,34 @@
       ]
     },
     {
+      "name": "Mexico",
+      "ranks": [
+        "antonelli",
+        "russell",
+        "hamilton",
+        "verstappen",
+        "leclerc",
+        "norris",
+        "piastri",
+        "hadjar",
+        "lawson",
+        "gasly",
+        "lindblad",
+        "colapinto",
+        "bearman",
+        "hulkenberg",
+        "bortoleto",
+        "ocon",
+        "alonso",
+        "sainz",
+        "albon",
+        "tsunoda",
+        "stroll",
+        "bottas",
+        "perez"
+      ]
+    },
+    {
       "name": "Bahrain",
       "ranks": [
         "antonelli",
@@ -493,12 +521,12 @@
       ]
     },
     {
-      "name": "Mexico",
+      "name": "Brazil",
       "ranks": [
         "antonelli",
-        "russell",
-        "hamilton",
         "verstappen",
+        "hamilton",
+        "russell",
         "leclerc",
         "norris",
         "piastri",
@@ -508,13 +536,14 @@
         "lindblad",
         "colapinto",
         "bearman",
-        "hulkenberg",
         "bortoleto",
+        "hulkenberg",
         "ocon",
         "alonso",
         "sainz",
         "albon",
         "tsunoda",
+        "hirakawa",
         "stroll",
         "bottas",
         "perez"
